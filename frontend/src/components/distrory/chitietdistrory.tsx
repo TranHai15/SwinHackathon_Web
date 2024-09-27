@@ -1,37 +1,67 @@
-import React from "react";
-import { useParams, Link } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 
 const ReportDetail = () => {
-  const {id} = useParams();
+  const location = useLocation();
+  const { dataMach } = location.state || {}; // Nhận dữ liệu từ state
 
-  const reportDetails = {
-    1: {
-      title: "Chi tiết báo cáo 1",
-      content: "Mạch điện bị hỏng ở khu vực A.",
-    },
-    2: {
-      title: "Chi tiết báo cáo 2",
-      content: "Mạch điện có dấu hiệu nóng chảy ở khu vực B.",
-    },
-    3: {
-      title: "Chi tiết báo cáo 3",
-      content: "Mạch điện bị ngắn mạch ở khu vực C.",
-    },
-  };
-
-  const report = reportDetails[Number(id)]; // Lấy báo cáo dựa trên ID từ URL. Chuyển ID từ chuỗi sang số nguyên bằng cách sử dụng Number()
-
-  if (!report) {
-    return <div>Report not found.</div>; // Hiển thị thông báo nếu báo cáo không tồn tại
+  if (!dataMach) {
+    return (
+      <div className="text-center text-red-500">No report data available.</div>
+    );
   }
 
+  // Hàm để xác định tình trạng dựa vào số lỗi
+  const getStatus = (soLoi) => {
+    if (soLoi < 3) {
+      return "Lỗi nhẹ";
+    } else if (soLoi >= 3 && soLoi < 9) {
+      return "Lỗi vừa";
+    } else {
+      return "Lỗi nặng";
+    }
+  };
+
   return (
-    <div className="p-4">
-      <h1 className="text-2xl font-bold">{report.title}</h1>
-      <p className="mt-2">{report.content}</p>
-      <Link to="/lichsu" className="text-blue-500 hover:underline mt-4 block">
-        Move to Home Page.
-      </Link>
+    <div className="p-8 bg-gray-100 min-h-screen">
+      <div className="max-w-4xl mx-auto bg-white shadow-lg rounded-lg p-6">
+        <h1 className="text-3xl font-bold text-gray-800 mb-6 text-center">
+          <i className="fas fa-file-alt mr-2"></i>
+          Report Details
+        </h1>
+
+        {/* Sử dụng Flexbox để bố trí hình ảnh và thông tin */}
+        <div className="flex flex-col md:flex-row items-start space-y-6 md:space-y-0 md:space-x-8">
+          {/* Hình ảnh */}
+          <div className="w-full md:w-1/2">
+            <img
+              src={dataMach.anh_mach}
+              alt="Mach Report"
+              className="w-full h-auto rounded-lg shadow-md"
+            />
+          </div>
+
+          {/* Thông tin chi tiết */}
+          <div className="w-full md:w-1/2 space-y-4 text-lg">
+            <p className="flex items-center">
+              <i className="fas fa-exclamation-triangle text-yellow-500 mr-2"></i>
+              <span className="font-semibold text-gray-700">Số lỗi: </span>
+              {dataMach.so_loi}
+            </p>
+            <p className="flex items-center">
+              <i className="fas fa-info-circle text-blue-500 mr-2"></i>
+              <span className="font-semibold text-gray-700">Tình trạng: </span>
+              {getStatus(dataMach.so_loi)} {/* Hiển thị tình trạng */}
+            </p>
+            <p className="flex items-center">
+              <i className="fas fa-calendar-alt text-green-500 mr-2"></i>
+              <span className="font-semibold text-gray-700">
+                Ngày kiểm tra:{" "}
+              </span>
+              {new Date(dataMach.ngay_them).toLocaleString()}
+            </p>
+          </div>
+        </div>
+      </div>
     </div>
   );
 };

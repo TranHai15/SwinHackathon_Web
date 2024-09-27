@@ -43,7 +43,7 @@ function App() {
           element={isAuthenticated ? <Bin /> : <NOTFOUND />}
         />
         <Route
-          path="/lichsuchitiet/:id"
+          path="/lichsuchitiet"
           element={
             isAuthenticated ? <ReportDetail /> : <Navigate to="/login" />
           }
@@ -75,8 +75,8 @@ function App() {
       </Routes>
       <Routes
         path="/about"
-        element={isAuthenticated ? <AboutUs /> : <Navigate to="/login" />}>
-      </Routes>
+        element={isAuthenticated ? <AboutUs /> : <Navigate to="/login" />}
+      ></Routes>
     </>
   );
 }

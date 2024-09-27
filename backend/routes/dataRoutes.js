@@ -12,5 +12,7 @@ router.post("/callApi", dataController.callApi);
 router.post("/takeApi/:id", dataController.getAllData);
 // uploade hinh anh
 router.post("/upload", dataController.uplodeImg);
+// lay mot mach chi tiet dua theo id
+router.post("/takemach", dataController.getIdWhereMach);
 
 module.exports = router;

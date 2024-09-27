@@ -29,7 +29,7 @@ export default function ImageUpload() {
       alert("Please choose an image!");
       return;
     }
-    console.log("img", imageBase64);
+    // console.log("img", imageBase64);
 
     try {
       // Tạo đối tượng dữ liệu để gửi
@@ -50,28 +50,40 @@ export default function ImageUpload() {
         }
       );
 
-      console.log("AI Response:", response.data); // In phản hồi từ server
+      // console.log("AI Response:", response.data); // In phản hồi từ server
 
       // Chờ để lấy task_id và sau đó gọi getstatus
       if (response.data.task_id) {
         const statusResponse = await axios.get(
           `http://localhost:5050/getstatus/${response.data.task_id}`
         );
-
+        // Kiểm tra nếu data không phải chuỗi hoặc độ dài nhỏ hơn 10
+        if (
+          !statusResponse.data ||
+          typeof statusResponse.data !== "string" ||
+          statusResponse.data.length < 10
+        ) {
+          console.log("tra ve", statusResponse.data);
+          console.error(
+            "Lỗi AI đang xử lý dữ liệu hoặc không phải là chuỗi base64 hợp lệ"
+          );
+          return 0;
+        }
+        console.log("getstatus ", statusResponse.data);
         const upload = await axios.post("http://localhost:3000/api/upload", {
           file: statusResponse.data,
         });
         const data = await upload.data.filePath;
         // lay id nguoi dung
         const id = localStorage.getItem("id");
-        console.log(id);
+        // console.log(id);
         let dayTime = getCurrentDateTime();
 
-        // tao doi tuong de them database
+        // Tạo đối tượng để thêm vào database
         const datauser = {
           anh_mach: data,
           so_loi: 9,
-          bao_cao: "chua co gi",
+          bao_cao: "chưa có gì",
           ngay_them: dayTime,
           id: id,
         };

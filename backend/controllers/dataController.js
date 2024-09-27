@@ -114,49 +114,30 @@ const dataController = {
     }
   },
 
-  // Refresh token
-  requestRefreshToken: async (req, res) => {
-    const refreshToken = req.body.refreshToken;
-    if (!refreshToken) {
-      return res.status(401).json("Bạn chưa đăng nhập.");
+  // lay mach du theo id mach va id nguoi dung
+
+  getIdWhereMach: async (req, res) => {
+    const { id, id_mach } = req.body.data;
+    // console.log(" i ", id, "          id_mach", id_mach);
+    // Kiểm tra nếu dataApi là mảng trống
+    if (!id || !id_mach) {
+      return res.status(402).json({
+        message: "Khong Nhan dc id gui id mach gui len",
+        data: [],
+      });
     }
 
     try {
-      const session = await MachDien.getSessionByMachDienId(req.body.id, true);
-      const tokenExists = session[0]?.refresh_token === refreshToken;
-
-      if (!tokenExists) {
-        return res.status(403).json("Token này không phải là của tôi");
+      const laydata = await MachDien.getMachById(id_mach, id);
+      if (laydata) {
+        return res.status(200).json({ id, id_mach, laydata });
+      } else {
+        return res.status(402).json("loi truy van ko lay dc du lieu mach");
       }
-
-      jwt.verify(
-        refreshToken,
-        process.env.JWT_REFRESH_TOKEN,
-        async (error, MachDien) => {
-          if (error) {
-            return res.status(403).json("Refresh token không hợp lệ");
-          }
-
-          const newAccessToken = authController.createAccessToken(MachDien);
-          const newRefreshToken = authController.createRefreshToken(MachDien);
-          await MachDien.updateRefreshToken(MachDien.id, newRefreshToken);
-
-          res.status(200).json({
-            accessToken: newAccessToken,
-            refreshToken: newRefreshToken,
-          });
-        }
-      );
     } catch (error) {
-      res.status(500).json("Đã xảy ra lỗi khi yêu cầu refresh token");
+      console.log("loi id mach", error);
+      return res.status(500).json("loi khong ther lay id va id mach");
     }
-  },
-
-  // Logout
-  MachDienLogout: async (req, res) => {
-    await MachDien.deleteSession(req.body.id);
-    res.clearCookie("refreshToken", { path: "/", sameSite: "none" });
-    res.status(200).json("Đăng xuất thành công.");
   },
 };
 
